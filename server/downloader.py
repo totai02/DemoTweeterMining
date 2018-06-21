@@ -6,7 +6,7 @@ class MyListener(StreamListener):
 
     def on_data(self, data):
         try:
-            with open('python.json', 'a') as f:
+            with open('worldcup.json', 'a') as f:
                 f.write(data)
                 return True
         except BaseException as e:
@@ -26,4 +26,4 @@ auth = OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_secret)
 
 twitter_stream = Stream(auth, MyListener())
-twitter_stream.filter(track=['survival'])
+twitter_stream.filter(track=['worldcup'])
