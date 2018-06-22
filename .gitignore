@@ -1,3 +1,5 @@
 .idea/
 */**/__pycache__/
 worldcup.json
+nb_data.json
+hfihu_data.json
