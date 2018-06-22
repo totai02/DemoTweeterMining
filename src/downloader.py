@@ -2,11 +2,16 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
 
+tweets = 0;
+
 class MyListener(StreamListener):
 
     def on_data(self, data):
+        global tweets
         try:
             with open('worldcup.json', 'a') as f:
+                tweets += 1
+                print(str(tweets) + " tweet downloaded.")
                 f.write(data)
                 return True
         except BaseException as e:
