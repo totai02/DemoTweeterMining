@@ -2,6 +2,8 @@
 
 ##Install package:
     pip install -r requirements.txt
+## Mining data:
+    python src/downloader.py
 ## Training data:
 ### HF-IHU
     python src/trainning.py hfihu
