@@ -1,34 +1,27 @@
+from collections import defaultdict
 import json
 
-hfm = {}
-thfm = {}
+hfm = defaultdict(lambda : defaultdict(int))
+thfm = defaultdict(lambda : defaultdict(int))
 outFile = 'hfihu_data.json'
+outEvaluate = 'hfihu_train.json'
 
 def addHFM (hashtag, term, value):
-    if (hashtag in hfm):
-        if (term in hfm[hashtag]):
-            hfm[hashtag][term] += value
-        else:
-            hfm[hashtag][term] = value
-    else:
-        terms = {}
-        terms[term] = value
-        hfm[hashtag] = terms
+    hfm[hashtag][term] += value
+
 
 def addTHFM(term, hashtag, value):
-    if (term in thfm):
-        if (hashtag in thfm[term]):
-            thfm[term][hashtag] += value
-        else:
-            thfm[term][hashtag] = value
-    else:
-        hashtags = {}
-        hashtags[hashtag] = value
-        thfm[term] = hashtags
+    thfm[term][hashtag] += value
 
-def writeToFile():
+
+def writeToFile(evaluate):
+    global corpus
+    if evaluate:
+        output = outEvaluate
+    else:
+        output = outFile
     try:
-        with open(outFile, 'w') as f:
+        with open(output, 'w') as f:
             f.write(json.dumps(hfm))
             f.write("\n")
             f.write(json.dumps(thfm))

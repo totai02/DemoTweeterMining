@@ -16,6 +16,21 @@ oneHashtag = 0
 multiHashtag = 0
 maxHashtag = 0
 fname = 'worldcup.json'
+evaluate = False
+count = 0
+test_tweet = []
+
+
+def addTest(terms_hash, terms_only):
+    tweet = {}
+    tweet['terms'] = terms_only
+    tweet['hashtags'] = terms_hash
+    test_tweet.append(tweet)
+
+def writeTest():
+    with open('test.json', 'w') as f:
+        f.write(json.dumps(test_tweet))
+
 
 if __name__ == '__main__':
     print("Trainning...")
@@ -27,6 +42,9 @@ if __name__ == '__main__':
             method = 'sa'
         else:
             method = 'hfihu'
+
+    if len(sys.argv) == 3 and sys.argv[2] == 'True':
+        evaluate = True
 
     with open(fname, 'r') as f:
         count_hashtag = Counter()
@@ -43,19 +61,26 @@ if __name__ == '__main__':
                 continue
 
             # Count hashtags only
+            # Lập danh sách các hashtag trong tweet & tính tần số
             terms_hash = [term for term in preprocess(tweet['text']) if term.startswith('#') and len(term) > 1]
             count_hashtag.clear()
             count_hashtag.update(terms_hash)
 
             # Count terms only (no hashtags, no mentions)
-            terms_only = [term.lower() for term in preprocess(tweet['text']) if
-                          term not in stop and not term.startswith(('#', '@'))]
+            # Lập danh sách các từ & tính tần số
+            terms_only = [term for term in preprocess(tweet['text'], True) if
+                          term.lower() not in stop and not term.startswith(('#', '@'))]
             count_term.clear()
             count_term.update(terms_only)
 
-            if (len(terms_hash) == 0):
-                nonHashtag += 1
-                continue
+            if method == 'sa':
+                all_terms = [*terms_only, *terms_hash]
+                single_term = set(all_terms)
+                for t1 in single_term:
+                    sa.addTerm(t1)
+                    for t2 in single_term:
+                        if t1 != t2:
+                            sa.addCom(t1, t2)
 
             if (len(terms_hash) == 1):
                 oneHashtag += 1
@@ -71,30 +96,41 @@ if __name__ == '__main__':
 
             cleanTweet += 1
 
+            if (len(terms_hash) == 0):
+                nonHashtag += 1
+                continue
+
+            if evaluate:
+                count += 1
+                if count > 9:
+                    addTest(terms_hash, terms_only)
+                    count = 0
+                    continue
+
+            # Gửi danh sách hashtag, từ cho method tương ứng
             if method == 'nb':
+                for term in terms_only:
+                    nb.addTerm(term, count_term[term])
                 for hashtag in terms_hash:
-                    for term in terms_only:
-                        nb.addTerm(term, count_term[term])
-                        nb.addHashtag(hashtag, count_hashtag[hashtag])
+                    nb.addHashtag(hashtag, count_hashtag[hashtag])
+                for term in terms_only:
+                    for hashtag in terms_hash:
                         nb.addTermHashtag(term, hashtag)
-            elif method == 'sa':
-                all_terms = [*terms_only, *terms_hash]
-                for t1 in all_terms:
-                    sa.addTerm(t1)
-                    for t2 in all_terms:
-                        if t1 != t2:
-                            sa.addCom(t1, t2)
-            else:
+            elif method == 'hfihu':
                 for hashtag in terms_hash:
                     for term in terms_only:
                         hfihu.addHFM(hashtag, term, count_term[term])
                         hfihu.addTHFM(term, hashtag, count_hashtag[hashtag])
+    # Ghi ra file
     if method == 'nb':
-        nb.writeToFile()
+        nb.writeToFile(evaluate)
     elif method == 'sa':
         sa.writeToFile(cleanTweet)
     else:
-        hfihu.writeToFile()
+        hfihu.writeToFile(evaluate)
+
+    if evaluate and method == 'nb':
+        writeTest()
 
     print("-------------------------------")
     print("Downloaded tweets:                          %d" % totalTweet)

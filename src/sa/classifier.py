@@ -16,7 +16,7 @@ def _readFile():
         semantic_orientation = json.loads(f.readline())
 
 
-def classifier(argv):
+def classifier(argv, results):
     """
     Read data training
     """
@@ -28,9 +28,24 @@ def classifier(argv):
     """
     start_time = datetime.now()
 
+    semantic_sorted = sorted(semantic_orientation.items(),
+                             key=operator.itemgetter(1),
+                             reverse=True)
+    top_pos = semantic_sorted[:results]
+    top_neg = semantic_sorted[-results:]
+
     """
     Print result:
     """
+    print("TOP %d POSITIVE TERMS:" % results)
+    for term, score in top_pos:
+        print(term + ": " + str(score))
+    print("----------------------------------")
+    print("TOP %d NEGATIVE TERMS:" % results)
+    for term, score in top_neg:
+        print(term + ": " + str(score))
+    print("----------------------------------")
+
     print("Semantic Orientation of terms:")
     for term in argv:
         print(term + ": " + str(semantic_orientation[term]))

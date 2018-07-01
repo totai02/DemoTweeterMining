@@ -1,12 +1,11 @@
 from collections import defaultdict
-import operator
 import math
 import json
 
-com = defaultdict(lambda : defaultdict(int))
-com_probs = defaultdict(lambda : defaultdict(int))
 tc = {}
+com = {}
 t_probs = {}
+com_probs = defaultdict(lambda : defaultdict(int))
 
 outFile = 'sa_data.json'
 pos_words_file = "positive-words.json"
@@ -19,7 +18,12 @@ def addTerm(term):
 
 def addCom(term1, term2):
     global com
-    com[term1][term2] += 1
+    if term1 in com:
+        com[term1][term2] = com[term1].get(term2, 0) + 1
+    else:
+        t_dict = {}
+        t_dict[term2] = 1
+        com[term1] = t_dict
 
 def writeToFile(tweets: int):
     with open(pos_words_file, 'r') as f:
@@ -29,10 +33,10 @@ def writeToFile(tweets: int):
 
     t_vocab = [*positive_vocab, *negative_vocab]
 
-    for term in tc:
+    for term in com.keys():
         t_probs[term] = tc[term] / tweets
         for vocab in t_vocab:
-            if vocab in com[term].keys():
+            if com[term].get(vocab, 0) != 0:
                 com_probs[term][vocab] = com[term][vocab] / tweets
 
     pmi = defaultdict(lambda: defaultdict(int))

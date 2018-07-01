@@ -5,14 +5,18 @@ hc = {}  # { hashtag: count }
 thc = {}  # { term: { hashtag: count } }
 htc = {}  # { hashtag: { term: count } }
 outFile = 'nb_data.json'
+outEvaluate = 'nb_train.json'
+
 
 def addTerm(term, count):
     global tc
     tc[term] = tc.get(term, 0) + count
 
+
 def addHashtag(hashtag, count):
     global hc
     hc[hashtag] = hc.get(hashtag, 0) + count
+
 
 def addTermHashtag(term, hashtag):
     global thc, htc
@@ -30,9 +34,14 @@ def addTermHashtag(term, hashtag):
         tdict[term] = 1
         htc[hashtag] = tdict
 
-def writeToFile():
+
+def writeToFile(evaluate):
+    if evaluate:
+        output = outEvaluate
+    else:
+        output = outFile
     try:
-        with open(outFile, 'w') as f:
+        with open(output, 'w') as f:
             f.write(json.dumps(tc))
             f.write("\n")
             f.write(json.dumps(hc))

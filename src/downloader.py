@@ -5,19 +5,28 @@ from tweepy import Stream
 import sys
 
 tweets = 0
-
+last_time = datetime.now()
+max_tweets_per_second = 10
+current_tweets = 0
 hours = {}
 
 class MyListener(StreamListener):
 
     def on_data(self, data):
-        global tweets
+        global tweets, last_time, current_tweets
         if str(datetime.now().hour) not in hours:
             if len(hours) > 0:
                 return True
+        if (datetime.now() - last_time).seconds > 0:
+            current_tweets = 0
+            last_time = datetime.now()
+        else:
+            if current_tweets >= max_tweets_per_second:
+                return True
         try:
-            with open('worldcup.json', 'a') as f:
+            with open('_worldcup.json', 'a') as f:
                 tweets += 1
+                current_tweets += 1
                 print(str(tweets) + " tweet downloaded.")
                 f.write(data)
                 return True
@@ -40,7 +49,11 @@ def downloader():
 
     twitter_stream = Stream(auth, MyListener())
     filtro = ['worldcup', '#worldcup', 'world cup', '@worldcup']
-    twitter_stream.filter(track=filtro)
+    while True:
+        try:
+            twitter_stream.filter(track=filtro, languages=['en'])
+        except BaseException as e:
+            print("Error on streaming: %s" % str(e))
 
 if __name__ == '__main__':
     hours = sys.argv[1:]

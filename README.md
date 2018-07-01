@@ -5,12 +5,14 @@
 ## Mining data:
     python src/downloader.py
 ## Training data:
-### HF-IHU
-    python src/trainning.py hfihu
-### Naive Bayes
-    python src/trainning.py nb
-### Sentiment Analysis
-    python src/trainning.py sa
+#### HF-IHU
+    python src/training.py hfihu
+#### Naive Bayes
+    python src/training.py nb
+#### Sentiment Analysis
+    python src/training.py sa
 ## Testing
     python src/classifier.py
     (method: hfihu, nb, sa)
+## Evaluation metric
+    python src/evaluate.py

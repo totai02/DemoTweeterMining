@@ -37,6 +37,6 @@ def preprocess(s, lowercase=False):
     return tokens
 
 punctuation = list(string.punctuation)
-stop = stopwords.words('english') + punctuation + ['rt', 'via', '.', '..', '...']
+stop = stopwords.words('english') + punctuation + ['rt', 'via', '.', '..', '...', '…', '’']
 
 
